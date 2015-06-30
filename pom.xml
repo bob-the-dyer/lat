@@ -91,6 +91,7 @@
                     -DDOCKER_HOST=tcp://192.168.59.103:2376
                     -DDOCKER_CERT_PATH=/Users/Vladimir/.boot2docker/certs/boot2docker-vm
                 2. add auth info to settings.xml to use -DpushImage, server section
+                3. https://github.com/spotify/docker-maven-plugin
                 -->
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
