@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>lat</name>
-    <url>http://maven.apache.org</url>
+    <url>https://github.com/bob-the-dyer/lat</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -86,6 +86,12 @@
                 </executions>
             </plugin>
             <plugin>
+                <!--
+                1. specify DOCKER_CERT_PATH and DOCKER_HOST in env variables, i.e.
+                    -DDOCKER_HOST=tcp://192.168.59.103:2376
+                    -DDOCKER_CERT_PATH=/Users/Vladimir/.boot2docker/certs/boot2docker-vm
+                2. add auth info to settings.xml to use -DpushImage, server section
+                -->
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.2.11</version>
