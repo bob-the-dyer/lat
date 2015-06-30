@@ -20,7 +20,7 @@ public class StarterVertical extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         log.info("starting to deploy verticals");
-        vertx.deployVerticle(HelloWorldVertical.class.getName(), new AsyncResultHandler());
+        vertx.deployVerticle(RestServer.class.getName(), new AsyncResultHandler());
     }
 
     private class AsyncResultHandler implements Handler<AsyncResult<String>> {
