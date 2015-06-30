@@ -3,10 +3,7 @@ package ru.kupchinolabs.lat;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.Router;
 
-/**
- * Hello world!
- */
-public class HelloWorld extends AbstractVerticle {
+public class HelloWorldVertical extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
@@ -19,4 +16,5 @@ public class HelloWorld extends AbstractVerticle {
 
         vertx.createHttpServer().requestHandler(router::accept).listen(8080);
     }
+
 }
