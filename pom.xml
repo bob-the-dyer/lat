@@ -92,6 +92,7 @@
                     -DDOCKER_CERT_PATH=/Users/Vladimir/.boot2docker/certs/boot2docker-vm
                 2. add auth info to settings.xml to use -DpushImage, server section
                 3. https://github.com/spotify/docker-maven-plugin
+                4. http://vertx.io/docs/vertx-docker/
                 -->
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
@@ -106,7 +107,7 @@
                 </executions>
                 <configuration>
                     <imageName>bobthedyer/lat</imageName>
-                    <dockerDirectory>docker</dockerDirectory>
+                    <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
                     <!-- copy the service's jar file from target into the root directory of the image -->
                     <resources>
                         <resource>
