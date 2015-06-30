@@ -3,7 +3,10 @@ package ru.kupchinolabs.lat;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.file.FileProps;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -42,7 +45,7 @@ public class RestServer extends AbstractVerticle {
         vertx.fileSystem().readDir(path, new AsyncResultHandler(response));
     }
 
-    private static class AsyncResultHandler implements Handler<AsyncResult<List<String>>> {
+    private class AsyncResultHandler implements Handler<AsyncResult<List<String>>> {
 
         private final HttpServerResponse response;
 
@@ -55,8 +58,23 @@ public class RestServer extends AbstractVerticle {
             if (result.succeeded()) {
                 final List<String> list = result.result();
                 Collections.sort(list);
-                response.end(String.valueOf(list));
-                //TODO convert to json
+                final JsonArray array = new JsonArray();
+                JsonObject object = new JsonObject().put("list", array);
+                for (String path : list) {
+                    final FileProps fileProps = vertx.fileSystem().propsBlocking(path);
+                    //TODO convert times to timestamps/dates
+                    array.add(new JsonObject()
+                                    .put("path", path)
+                                    .put("creationTime", fileProps.creationTime())
+                                    .put("isDirectory", fileProps.isDirectory())
+                                    .put("isRegularFile", fileProps.isRegularFile())
+                                    .put("isSymbolicLink", fileProps.isSymbolicLink())
+                                    .put("lastAccessTime", fileProps.lastAccessTime())
+                                    .put("lastModifiedTime", fileProps.lastModifiedTime())
+                                    .put("sizeInBytes", fileProps.size())
+                    );
+                }
+                response.end(object.encodePrettily());
                 //TODO fix stuff like Ñ€ÐµÐ¿ÐµÑ€Ñ‚ÑƒÐ°Ñ€.doc
                 //TODO add dir listener to publish dir changes via eventbus, remove after some time or on all websocket client closed
             } else {
