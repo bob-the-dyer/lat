@@ -20,14 +20,16 @@ public class StarterVertical extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         log.info("starting to deploy verticals");
-        vertx.deployVerticle(RestServer.class.getName(), new AsyncResultHandler());
+        final AsyncResultHandler completionHandler = new AsyncResultHandler();
+        vertx.deployVerticle(RestServerVertical.class.getName(), completionHandler);
+        vertx.deployVerticle(WatchServiceVertical.class.getName(), completionHandler);
     }
 
     private class AsyncResultHandler implements Handler<AsyncResult<String>> {
         @Override
         public void handle(AsyncResult<String> event) {
             if (event.succeeded()) {
-                log.info("deploy succeeded");
+                log.info("deploy succeeded - " + event.result());
             } else {
                 log.log(Level.SEVERE, "deploy failed: " + event.cause().getMessage());
                 vertx.close();
