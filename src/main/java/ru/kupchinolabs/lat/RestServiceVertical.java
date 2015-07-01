@@ -10,8 +10,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.FaviconHandler;
 
 import java.net.URLDecoder;
 import java.util.Collections;
@@ -22,9 +20,9 @@ import java.util.logging.Logger;
 import static ru.kupchinolabs.lat.Constants.DIR_WATCH_REGISTER_ADDRESS;
 import static ru.kupchinolabs.lat.Constants.DIR_WATCH_UNREGISTER_ADDRESS;
 
-public class RestServerVertical extends AbstractVerticle {
+public class RestServiceVertical extends AbstractVerticle {
 
-    private final static Logger log = Logger.getLogger(RestServerVertical.class.getName());
+    private final static Logger log = Logger.getLogger(RestServiceVertical.class.getName());
 
     @Override
     public void start() throws Exception {
