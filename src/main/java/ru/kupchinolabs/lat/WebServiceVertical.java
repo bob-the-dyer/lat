@@ -10,6 +10,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 import java.net.URLDecoder;
 import java.util.Collections;
@@ -20,16 +21,15 @@ import java.util.logging.Logger;
 import static ru.kupchinolabs.lat.Constants.DIR_WATCH_REGISTER_ADDRESS;
 import static ru.kupchinolabs.lat.Constants.DIR_WATCH_UNREGISTER_ADDRESS;
 
-public class RestServiceVertical extends AbstractVerticle {
+public class WebServiceVertical extends AbstractVerticle {
 
-    private final static Logger log = Logger.getLogger(RestServiceVertical.class.getName());
+    private final static Logger log = Logger.getLogger(WebServiceVertical.class.getName());
 
     @Override
     public void start() throws Exception {
         Router router = Router.router(vertx);
-//        router.route()
-//                .handler(BodyHandler.create())
-//                .handler(FaviconHandler.create());
+        router.route()
+                .handler(BodyHandler.create());
         router.get("/api/list/").handler(this::handleListUserHome);
         router.get("/api/list/:path").handler(this::handleListByPath);
         router.get("/api/watch/:path").handler(this::handleWatchPath);

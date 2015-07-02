@@ -21,7 +21,7 @@ public class StarterVertical extends AbstractVerticle {
     public void start() throws Exception {
         log.info("starting to deploy verticals");
         final AsyncResultHandler completionHandler = new AsyncResultHandler();
-        vertx.deployVerticle(RestServiceVertical.class.getName(), completionHandler);
+        vertx.deployVerticle(WebServiceVertical.class.getName(), completionHandler);
         vertx.deployVerticle(WatchServiceVertical.class.getName(), completionHandler);
     }
 
