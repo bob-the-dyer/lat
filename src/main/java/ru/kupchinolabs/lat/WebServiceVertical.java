@@ -11,7 +11,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 
+import java.io.File;
 import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.List;
@@ -28,12 +30,12 @@ public class WebServiceVertical extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         Router router = Router.router(vertx);
-        router.route()
-                .handler(BodyHandler.create());
+        router.route().handler(BodyHandler.create());
         router.get("/api/list/").handler(this::handleListUserHome);
         router.get("/api/list/:path").handler(this::handleListByPath);
         router.get("/api/watch/:path").handler(this::handleWatchPath);
         router.get("/api/unwatch/:path").handler(this::handleUnwatchPath);
+        router.route().handler(StaticHandler.create());
         vertx.createHttpServer().requestHandler(router::accept).listen(8080);
         //TODO add security, tls, eventbus
     }
@@ -106,13 +108,17 @@ public class WebServiceVertical extends AbstractVerticle {
                     Collections.sort(list);
                     final JsonArray array = new JsonArray();
                     object.set(new JsonObject()
-                            .put("dir", path)
-                            .put("contents", array));
+                                    .put("dir", path)
+                                    .put("parent", path.substring(0, path.lastIndexOf(File.separator)))
+                                    .put("contents", array)
+                    );
                     for (String path : list) {
                         final FileProps fileProps = vertx.fileSystem().propsBlocking(path);
                         //TODO fix stuff like Ñ€ÐµÐ¿ÐµÑ€Ñ‚ÑƒÐ°Ñ€.doc
                         //TODO convert times to timestamps/dates
+                        final String[] split = path.split(File.separator);
                         array.add(new JsonObject()
+                                        .put("name", split[split.length - 1])
                                         .put("path", path)
                                         .put("isDirectory", fileProps.isDirectory())
                                         .put("isRegularFile", fileProps.isRegularFile())
