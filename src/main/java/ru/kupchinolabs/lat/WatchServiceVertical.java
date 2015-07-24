@@ -6,8 +6,8 @@ import io.vertx.core.eventbus.Message;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,7 +18,8 @@ public class WatchServiceVertical extends AbstractVerticle {
 
     private final static Logger log = Logger.getLogger(WatchServiceVertical.class.getName());
 
-    ConcurrentMap<String, WatchService> watchers = new ConcurrentHashMap<>();
+    Map<String, WatchService> watchers = new HashMap<>();
+    Map<String, Integer> watchersCounters = new HashMap<>();
 
     @Override
     public void start() throws Exception {
@@ -29,7 +30,7 @@ public class WatchServiceVertical extends AbstractVerticle {
 
     private void handleRegister(Message<Object> message) {
         final String pathAsString = message.body().toString();
-        if (watchers.get(pathAsString) == null) {
+        if (watchersCounters.get(pathAsString) == null) {
             final Path path = new File(pathAsString).toPath();
             try {
                 WatchService watcher = FileSystems.getDefault().newWatchService();
@@ -37,7 +38,8 @@ public class WatchServiceVertical extends AbstractVerticle {
                         ENTRY_CREATE,
                         ENTRY_DELETE,
                         ENTRY_MODIFY);
-                watchers.putIfAbsent(pathAsString, watcher);
+                watchersCounters.put(pathAsString, 1);
+                watchers.put(pathAsString, watcher);
                 log.log(Level.INFO, "registered watcher for {0}", pathAsString);
                 message.reply("watcher registered, dir " + pathAsString);
             } catch (IOException e) {
@@ -46,6 +48,7 @@ public class WatchServiceVertical extends AbstractVerticle {
             }
         } else {
             log.log(Level.INFO, "watcher already exists, dir {0}", pathAsString);
+            watchersCounters.put(pathAsString, watchersCounters.get(pathAsString) + 1);
             message.reply("watcher already exists, dir " + pathAsString);
         }
     }
@@ -54,14 +57,22 @@ public class WatchServiceVertical extends AbstractVerticle {
         final String pathAsString = message.body().toString();
         final WatchService watcher = watchers.get(pathAsString);
         if (watcher != null) {
-            watchers.remove(pathAsString);
-            try {
-                watcher.close();
-                log.log(Level.INFO, "unregistered watcher for {0}", pathAsString);
-                message.reply("watcher unregistered, dir " + pathAsString);
-            } catch (IOException e) {
-                log.log(Level.WARNING, "unregistering watcher for {0} failed", pathAsString);
-                message.fail(-1, e.getMessage());
+            final Integer counter = watchersCounters.get(pathAsString);
+            if (counter == 1) {
+                watchersCounters.remove(pathAsString);
+                watchers.remove(pathAsString);
+                try {
+                    watcher.close();
+                    log.log(Level.INFO, "unregistered watcher for {0}", pathAsString);
+                    message.reply("watcher unregistered, dir " + pathAsString);
+                } catch (IOException e) {
+                    log.log(Level.WARNING, "unregistering watcher for {0} failed", pathAsString);
+                    message.fail(-1, e.getMessage());
+                }
+            } else {
+                log.log(Level.INFO, "there are other users currently watching the path {0}, skipping unregistering", pathAsString);
+                watchersCounters.put(pathAsString, watchersCounters.get(pathAsString) - 1);
+                message.reply("there are other users currently watching the path, skipping unregistering");
             }
         } else {
             log.log(Level.INFO, "watcher is not registered, dir {0}", pathAsString);
@@ -92,6 +103,7 @@ public class WatchServiceVertical extends AbstractVerticle {
                 if (!key.reset()) {
                     log.log(Level.INFO, "dir {0} is inaccessible, removing watcher", watcherDir);
                     watchers.remove(watcherDir);
+                    watchersCounters.remove(watcherDir);
                 }
             }
         }
