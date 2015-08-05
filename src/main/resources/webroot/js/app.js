@@ -1,6 +1,6 @@
 (function () {
     var app = angular.module('lat', []);
-    app.controller('ListController', ['$http', '$scope', function ($http, $scope) {
+    app.controller('ListController', ['$http', '$scope', '$timeout', function ($http, $scope, $timeout) {
         this.contents = [];
         this.parent = "";
         this.current = "";
@@ -11,7 +11,9 @@
         $scope.openEntry = function (path, isDir) {
             console.log("trying to read " + path + ", encoded as " + encodeURIComponent(path));
             if (isDir) {
-                list.showProgress = true;
+                var timer = $timeout(function(){
+                    list.showProgress = true;
+                }, 500);
                 $http.get('/api/list/' + encodeURIComponent(path)).success(function (data) {
                     console.log("opening entry succeeded for path" + data.dir);
                     if (list.current != null && list.current.length > 0) {
@@ -23,13 +25,16 @@
                     list.showError = false;
                     list.error = "";
                     $scope.orderProp = 'name';
+                    $timeout.cancel(timer);
+                    list.showProgress = false;
                     $http.put('/api/watch/' + encodeURIComponent(list.current));
                 }).error(function (data) {
                     console.log("error occurred while opening entry:" + data);
+                    $timeout.cancel(timer);
+                    list.showProgress = false;
                     list.showError = true;
                     list.error = data;
                 });
-                list.showProgress = false;
             } else {
                 console.log("opening files is not implemented yet");
             }
@@ -80,5 +85,8 @@
             console.log("closing socket");
             $scope.eb = null;
         };
-    }]);
-})();
+    }
+    ])
+    ;
+})
+();
