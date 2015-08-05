@@ -9,7 +9,7 @@
 </head>
 <body ng-controller="ListController as list">
 <div>
-    Search: <input ng-model="query" ng-init="">
+    Search: <input ng-model="query.name" ng-init="">
 </div>
 Sort by:
 <select ng-model="orderProp">
@@ -46,7 +46,7 @@ Sort by:
                 <a role="button"
                    ng-click="openEntry(entry.path, entry.isDirectory)"
                    ng-class="classForEntry(entry)"
-                   ng-repeat="entry in list.contents | filter:query | orderBy:orderProp">
+                   ng-repeat="entry in list.contents | filter:query:strict | orderBy:orderProp">
                     <span ng-class="glyphIconForEntry(entry)" aria-hidden="true"></span>
                     {{entry.name}}
                     <span class="badge">{{entry.lastModifiedTime | date: 'yyyy-MM-dd h:mma'}}</span>
