@@ -34,8 +34,8 @@ public class WebServiceVertical extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
         router.get("/api/list/").handler(this::handleListUserHome);
         router.get("/api/list/:path").handler(this::handleListByPath);
-        router.get("/api/watch/:path").handler(this::handleWatchPath); //TODO try to replace with put
-        router.get("/api/unwatch/:path").handler(this::handleUnwatchPath); //TODO try to replace with delete
+        router.put("/api/watch/:path").handler(this::handleWatchPath);
+        router.delete("/api/watch/:path").handler(this::handleUnwatchPath);
         router.route().handler(StaticHandler.create());
         vertx.createHttpServer().requestHandler(router::accept).listen(8080);
         //TODO add security, tls, eventbus
