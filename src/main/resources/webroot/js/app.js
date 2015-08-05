@@ -15,12 +15,19 @@
                     $scope.orderProp = 'name';
                 });
             }
-        }
+        };
         $scope.classForEntry = function(entry){
             if (entry.isDirectory){
                 return "list-group-item"
             } else {
                 return "list-group-item disabled"
+            }
+        };
+        $scope.glyphIconForEntry = function(entry){
+            if (entry.isDirectory){
+                return "glyphicon glyphicon-folder-close"
+            } else {
+                return "glyphicon glyphicon-file"
             }
         }
     }]);

@@ -23,7 +23,7 @@ Sort by:
     <a role="button" ng-click="newread(entry)"
        ng-class="classForEntry(entry)"
        ng-repeat="entry in list.contents | filter:query | orderBy:orderProp">
-        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span ng-class="glyphIconForEntry(entry)" aria-hidden="true"></span>
         {{entry.name}}
     </a>
 </div>
