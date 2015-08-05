@@ -155,7 +155,7 @@ public class WebServiceVertical extends AbstractVerticle {
                 log.log(Level.SEVERE, "handling failure reading of dir {0}", path);
                 response.putHeader("content-type", "text/plain")
                         .setStatusCode(400)
-                        .end("failed to read " + path + ": " + result.cause());
+                        .end("failed to read " + path + " contents: " + result.cause());
             }
         }
     }
