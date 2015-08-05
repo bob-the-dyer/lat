@@ -53,6 +53,7 @@
                 return "glyphicon glyphicon-file"
             }
         };
+
         $scope.openEntry("", true);
 
         if ($scope.eb != null) {
@@ -76,6 +77,5 @@
             console.log("closing socket");
             $scope.eb = null;
         };
-
     }]);
 })();
