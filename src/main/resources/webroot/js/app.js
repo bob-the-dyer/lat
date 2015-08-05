@@ -6,10 +6,12 @@
         this.current = "";
         this.showError = false;
         this.error = "";
+        this.showProgress = false;
         var list = this;
         $scope.openEntry = function (path, isDir) {
             console.log("trying to read " + path + ", encoded as " + encodeURIComponent(path));
             if (isDir) {
+                list.showProgress = true;
                 $http.get('/api/list/' + encodeURIComponent(path)).success(function (data) {
                     console.log("opening entry succeeded for path" + data.dir);
                     if (list.current != null && list.current.length > 0) {
@@ -27,6 +29,7 @@
                     list.showError = true;
                     list.error = data;
                 });
+                list.showProgress = false;
             } else {
                 console.log("opening files is not implemented yet");
             }
@@ -67,7 +70,7 @@
             // set a handler to receive a message
             $scope.eb.registerHandler('dir.watcher.notify', function (dir) {
                 console.log('received a message: ' + dir);
-                if (dir == list.current){
+                if (dir == list.current) {
                     console.log("rereading " + dir);
                     $scope.openEntry(list.current, true);
                 }
