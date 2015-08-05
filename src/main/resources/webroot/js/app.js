@@ -13,6 +13,7 @@
                     list.current = data.dir;
                     $scope.orderProp = 'name';
                 });
+                //TODO add a fail callback and display error on the UI
             } else {
                 console.log("opening files is not implemented yet");
             }

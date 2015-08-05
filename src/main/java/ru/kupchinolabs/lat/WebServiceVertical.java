@@ -107,9 +107,17 @@ public class WebServiceVertical extends AbstractVerticle {
                     final List<String> list = result.result();
                     Collections.sort(list);
                     final JsonArray array = new JsonArray();
+                    final String parent;
+                    if ("/".equals(path)){
+                        parent = "";
+                    } else if (path.lastIndexOf(File.separator) == 0){
+                        parent = "/";
+                    } else {
+                        parent = path.substring(0, path.lastIndexOf(File.separator));
+                    }
                     object.set(new JsonObject()
                                     .put("dir", path)
-                                    .put("parent", path.substring(0, path.lastIndexOf(File.separator)))
+                                    .put("parent", parent)
                                     .put("contents", array)
                     );
                     for (String path : list) {
