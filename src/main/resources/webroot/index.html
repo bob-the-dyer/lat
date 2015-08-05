@@ -17,22 +17,30 @@ Sort by:
     <option value="sizeInBytes">Size</option>
     <option value="lastModifiedTime">Date</option>
 </select>
+
 <div class="well">
-    <div class="list-group">
-        <a role="button"
-           ng-click="openEntry(list.parent, true)"
-           ng-class="classForParent(list.parent)">
-            <span class="glyphicon glyphicon-level-up" aria-hidden="true"></span>
-            ..
-        </a>
-        <a role="button"
-           ng-click="openEntry(entry.path, entry.isDirectory)"
-           ng-class="classForEntry(entry)"
-           ng-repeat="entry in list.contents | filter:query | orderBy:orderProp">
-            <span ng-class="glyphIconForEntry(entry)" aria-hidden="true"></span>
-            {{entry.name}}
-            <span class="badge">{{entry.lastModifiedTime | date: 'yyyy-MM-dd h:mma'}}</span>
-        </a>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{list.current}}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="list-group">
+                <a role="button"
+                   ng-click="openEntry(list.parent, true)"
+                   ng-class="classForParent(list.parent)">
+                    <span class="glyphicon glyphicon-level-up" aria-hidden="true"></span>
+                    ..
+                </a>
+                <a role="button"
+                   ng-click="openEntry(entry.path, entry.isDirectory)"
+                   ng-class="classForEntry(entry)"
+                   ng-repeat="entry in list.contents | filter:query | orderBy:orderProp">
+                    <span ng-class="glyphIconForEntry(entry)" aria-hidden="true"></span>
+                    {{entry.name}}
+                    <span class="badge">{{entry.lastModifiedTime | date: 'yyyy-MM-dd h:mma'}}</span>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

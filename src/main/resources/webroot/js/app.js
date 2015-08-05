@@ -10,6 +10,7 @@
                 $http.get('/api/list/' + encodeURIComponent(path)).success(function (data) {
                     list.contents = data.contents;
                     list.parent = data.parent;
+                    list.current = data.dir;
                     $scope.orderProp = 'name';
                 });
             } else {
