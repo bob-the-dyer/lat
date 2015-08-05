@@ -17,11 +17,16 @@ Sort by:
     <option value="sizeInBytes">Size</option>
     <option value="lastModifiedTime">Date</option>
 </select>
-<!--TODO add header Name Date-->
-<!--TODO add .. to navigate to parent if exists-->
 <div class="well">
     <div class="list-group">
-        <a role="button" ng-click="newread(entry)"
+        <a role="button"
+           ng-click="openEntry(list.parent, true)"
+           ng-class="classForParent(list.parent)">
+            <span class="glyphicon glyphicon-level-up" aria-hidden="true"></span>
+            ..
+        </a>
+        <a role="button"
+           ng-click="openEntry(entry.path, entry.isDirectory)"
            ng-class="classForEntry(entry)"
            ng-repeat="entry in list.contents | filter:query | orderBy:orderProp">
             <span ng-class="glyphIconForEntry(entry)" aria-hidden="true"></span>
