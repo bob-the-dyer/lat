@@ -18,6 +18,7 @@ import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static ru.kupchinolabs.lat.Constants.DIR_WATCH_REGISTER_ADDRESS;
@@ -52,6 +53,7 @@ public class WebServiceVertical extends AbstractVerticle {
 
     private void handle(RoutingContext routingContext, String path) {
         HttpServerResponse response = routingContext.response();
+        log.log(Level.INFO, "starting reading dir {0}", path);
         vertx.fileSystem().readDir(path, new ReadDirResultHandler(response, path));
     }
 
@@ -102,15 +104,16 @@ public class WebServiceVertical extends AbstractVerticle {
         @Override
         public void handle(AsyncResult<List<String>> result) {
             if (result.succeeded()) {
+                log.log(Level.INFO, "handling success reading of dir {0}", path);
                 final AtomicReference<JsonObject> object = new AtomicReference<>(); // just to use in lambda
                 vertx.executeBlocking(future -> {
                     final List<String> list = result.result();
                     Collections.sort(list);
                     final JsonArray array = new JsonArray();
                     final String parent;
-                    if ("/".equals(path)){
+                    if ("/".equals(path)) {
                         parent = "";
-                    } else if (path.lastIndexOf(File.separator) == 0){
+                    } else if (path.lastIndexOf(File.separator) == 0) {
                         parent = "/";
                     } else {
                         parent = path.substring(0, path.lastIndexOf(File.separator));
@@ -125,8 +128,9 @@ public class WebServiceVertical extends AbstractVerticle {
                         //TODO fix stuff like Ñ€ÐµÐ¿ÐµÑ€Ñ‚ÑƒÐ°Ñ€.doc
                         //TODO convert times to timestamps/dates
                         final String[] split = path.split(File.separator);
+                        final String name = "/".equals(path) ? "/" : split[split.length - 1];
                         array.add(new JsonObject()
-                                        .put("name", split[split.length - 1])
+                                        .put("name", name)
                                         .put("path", path)
                                         .put("isDirectory", fileProps.isDirectory())
                                         .put("isRegularFile", fileProps.isRegularFile())
@@ -144,13 +148,14 @@ public class WebServiceVertical extends AbstractVerticle {
                     } else {
                         response.putHeader("content-type", "text/plain")
                                 .setStatusCode(400)
-                                .end(res.cause().getMessage());
+                                .end("failed to prepare response for " + path + ": " + res.cause());
                     }
                 });
             } else {
-                response.putHeader("content-type", "text/plain/")
+                log.log(Level.SEVERE, "handling failure reading of dir {0}", path);
+                response.putHeader("content-type", "text/plain")
                         .setStatusCode(400)
-                        .end(result.cause().getMessage());
+                        .end("failed to read " + path + ": " + result.cause());
             }
         }
     }
