@@ -17,7 +17,7 @@ Sort by:
     <option value="sizeInBytes">Size</option>
     <option value="lastModifiedTime">Date</option>
 </select>
-<!--TODO add header Name Size Date-->
+<!--TODO add header Name Date-->
 <!--TODO add .. to navigate to parent if exists-->
 <div class="list-group">
     <a role="button" ng-click="newread(entry)"
@@ -25,6 +25,7 @@ Sort by:
        ng-repeat="entry in list.contents | filter:query | orderBy:orderProp">
         <span ng-class="glyphIconForEntry(entry)" aria-hidden="true"></span>
         {{entry.name}}
+        <span class="badge">{{entry.lastModifiedTime | date: 'yyyy-MM-dd h:mma'}}</span>
     </a>
 </div>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
