@@ -20,6 +20,7 @@ public class WatchServiceVertical extends AbstractVerticle {
 
     Map<String, WatchService> watchers = new HashMap<>();
     Map<String, Integer> watchersCounters = new HashMap<>();
+    //TODO register watchers per client
 
     @Override
     public void start() throws Exception {
