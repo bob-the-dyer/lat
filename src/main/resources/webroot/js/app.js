@@ -11,7 +11,7 @@
         $scope.openEntry = function (path, isDir) {
             console.log("trying to read " + path + ", encoded as " + encodeURIComponent(path));
             if (isDir) {
-                var timer = $timeout(function(){
+                var timer = $timeout(function () {
                     list.showProgress = true;
                 }, 500);
                 $http.get('/api/list/' + encodeURIComponent(path)).success(function (data) {
@@ -69,7 +69,6 @@
             $scope.eb.close();
         }
         $scope.eb = new vertx.EventBus(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/eventbus');
-//        $scope.eb = new vertx.EventBus("http://localhost:8080/eventbus")
         $scope.eb.onopen = function () {
             console.log("opening socket");
             // set a handler to receive a message
