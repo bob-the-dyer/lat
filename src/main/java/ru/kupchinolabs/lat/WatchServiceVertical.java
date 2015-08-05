@@ -25,7 +25,7 @@ public class WatchServiceVertical extends AbstractVerticle {
     public void start() throws Exception {
         vertx.eventBus().consumer(DIR_WATCH_REGISTER_ADDRESS, this::handleRegister);
         vertx.eventBus().consumer(DIR_WATCH_UNREGISTER_ADDRESS, this::handleUnregister);
-        vertx.setPeriodic(2000, this::pollWatcherEvents);
+        vertx.setPeriodic(1000, this::pollWatcherEvents);
     }
 
     private void handleRegister(Message<Object> message) {

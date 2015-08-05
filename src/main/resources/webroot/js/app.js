@@ -12,7 +12,7 @@
             if (isDir) {
                 $http.get('/api/list/' + encodeURIComponent(path)).success(function (data) {
                     console.log("opening entry succeeded for path" + data.dir);
-                    if (list.current != null && list.current.length > 0){
+                    if (list.current != null && list.current.length > 0) {
                         $http.delete('/api/watch/' + encodeURIComponent(list.current));
                     }
                     list.contents = data.contents;
@@ -22,7 +22,7 @@
                     list.error = "";
                     $scope.orderProp = 'name';
                     $http.put('/api/watch/' + encodeURIComponent(list.current));
-                }).error(function (data){
+                }).error(function (data) {
                     console.log("error occurred while opening entry:" + data);
                     list.showError = true;
                     list.error = data;
@@ -54,5 +54,28 @@
             }
         };
         $scope.openEntry("", true);
+
+        if ($scope.eb != null) {
+            console.log("socket was opened, closing");
+            $scope.eb.close();
+        }
+        $scope.eb = new vertx.EventBus(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/eventbus');
+//        $scope.eb = new vertx.EventBus("http://localhost:8080/eventbus")
+        $scope.eb.onopen = function () {
+            console.log("opening socket");
+            // set a handler to receive a message
+            $scope.eb.registerHandler('dir.watcher.notify', function (dir) {
+                console.log('received a message: ' + dir);
+                if (dir == list.current){
+                    console.log("rereading " + dir);
+                    $scope.openEntry(list.current, true);
+                }
+            });
+        };
+        $scope.eb.onclose = function () {
+            console.log("closing socket");
+            $scope.eb = null;
+        };
+
     }]);
 })();

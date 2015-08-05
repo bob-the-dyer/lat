@@ -12,6 +12,9 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.PermittedOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
 import java.io.File;
 import java.net.URLDecoder;
@@ -31,14 +34,25 @@ public class WebServiceVertical extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         Router router = Router.router(vertx);
+
         router.route().handler(BodyHandler.create());
+
         router.get("/api/list/").handler(this::handleListUserHome);
         router.get("/api/list/:path").handler(this::handleListByPath);
         router.put("/api/watch/:path").handler(this::handleWatchPath);
         router.delete("/api/watch/:path").handler(this::handleUnwatchPath);
+
+        SockJSHandler sockJSHandler = SockJSHandler.create(vertx);
+        BridgeOptions options = new BridgeOptions()
+                .addOutboundPermitted(new PermittedOptions().setAddress(Constants.DIR_WATCH_NOTIFY_ADDRESS));
+        sockJSHandler.bridge(options);
+
+        router.route("/eventbus/*").handler(sockJSHandler);
+
         router.route().handler(StaticHandler.create());
+
         vertx.createHttpServer().requestHandler(router::accept).listen(8080);
-        //TODO add security, tls, eventbus
+        //TODO add security, tls
     }
 
     private void handleListUserHome(RoutingContext routingContext) {
