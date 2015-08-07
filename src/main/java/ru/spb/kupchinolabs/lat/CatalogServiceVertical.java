@@ -16,6 +16,7 @@ import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
+import java.io.File;
 import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -141,19 +142,11 @@ public class CatalogServiceVertical extends AbstractVerticle {
                         }
                         final Path fileNamePath = Paths.get(path).getFileName();
                         final String name = fileNamePath != null ? fileNamePath.toString() : Paths.get(path).toString();
-                        /////////////////////
-                        // TODO think about it later
-                        // This is workaround for windows: some folders like My Documents have isDirectory=true
-                        // however return listFiles = null. Disabled for performance reasons.
-                        //
-                        // boolean isBadDir = fileProps != null && fileProps.isDirectory() && Paths.get(path).toFile().listFiles() == null;
-                        /////////////////////
                         final boolean hidden = Paths.get(path).toFile().isHidden();
                         array.add(new JsonObject()
                                         .put("name", name)
                                         .put("path", path)
                                         .put("isDir", fileProps != null ? fileProps.isDirectory() : false)
-                                        .put("isBadDir", false)
                                         .put("isFile", fileProps != null ? fileProps.isRegularFile() : false)
                                         .put("isSymLink", fileProps != null ? fileProps.isSymbolicLink() : false)
                                         .put("isOther", fileProps != null ? fileProps.isOther() : false)
@@ -175,10 +168,18 @@ public class CatalogServiceVertical extends AbstractVerticle {
                     }
                 });
             } else {
-                log.log(Level.SEVERE, "handling failure reading of dir {0}:{1}", new String[]{path, result.cause().toString()});
+                /////////////////////
+                // This is workaround for windows: some folders like My Documents have isDirectory=true
+                // however return listFiles = null, vert.x fails with NPE, not nice
+                /////////////////////
+                final File file = Paths.get(path).toFile();
+                boolean isBadDir = file.isDirectory() && file.listFiles() == null;
+
+                log.log(Level.SEVERE, "handling failure reading of dir {0}:badDir={1}:{2}",
+                        new String[]{path, String.valueOf(isBadDir), result.cause().toString()});
                 response.putHeader("content-type", "text/plain")
                         .setStatusCode(400)
-                        .end("failed to read " + path + " contents: " + result.cause());
+                        .end("failed to read '" + path + "' contents: " + (isBadDir ? " strange folder ..." : result.cause()));
             }
         }
     }

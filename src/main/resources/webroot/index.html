@@ -44,7 +44,7 @@ Sort by:
                     ..
                 </a>
                 <a role="button"
-                   ng-click="openFile(file.path, file.isDir, file.isBadDir)"
+                   ng-click="openFile(file.path, file.isDir)"
                    ng-class="classForFile(file)"
                    ng-repeat="file in catalog.contents | filter:query:strict | orderBy:orderProp">
                     <span ng-class="glyphIconForFile(file)" aria-hidden="true"></span>

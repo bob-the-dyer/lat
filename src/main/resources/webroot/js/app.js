@@ -8,11 +8,7 @@
         this.error = "";
         this.showProgress = false;
         var catalog = this;
-        $scope.openFile = function (path, isDir, isBadDir) {
-            if (isBadDir) {
-                console.log("opening bad directory is skipped: " + path);
-                return;
-            }
+        $scope.openFile = function (path, isDir) {
             console.log("trying to read " + path + ", encoded as " + encodeURIComponent(path));
             if (isDir) {
                 var timer = $timeout(function () {
@@ -60,11 +56,7 @@
         };
         $scope.glyphIconForFile = function (file) {
             if (file.isDir) {
-                if (file.isBadDir){
-                    return "glyphicon glyphicon-question-sign";
-                } else {
-                    return "glyphicon glyphicon-folder-close";
-                }
+                return "glyphicon glyphicon-folder-close";
             } else if (file.isSymLink) {
                 return "glyphicon glyphicon-open-file";
             } else if (file.isFile) {
@@ -74,7 +66,7 @@
             }
         };
 
-        $scope.openFile("", true, false);
+        $scope.openFile("", true);
 
         if ($scope.eb != null) {
             console.log("socket was opened, closing");
@@ -88,7 +80,7 @@
                 console.log('received a message: ' + dir);
                 if (dir == catalog.current) {
                     console.log("rereading " + dir);
-                    $scope.openFile(catalog.current, true, false);
+                    $scope.openFile(catalog.current, true);
                 }
             });
         };
