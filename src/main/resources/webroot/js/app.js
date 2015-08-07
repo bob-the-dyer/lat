@@ -1,14 +1,14 @@
 (function () {
     var app = angular.module('lat', []);
-    app.controller('ListController', ['$http', '$scope', '$timeout', function ($http, $scope, $timeout) {
+    app.controller('CatalogController', ['$http', '$scope', '$timeout', function ($http, $scope, $timeout) {
         this.contents = [];
         this.parent = "";
         this.current = "";
         this.showError = false;
         this.error = "";
         this.showProgress = false;
-        var list = this;
-        $scope.openEntry = function (path, isDir, isBadDir) {
+        var catalog = this;
+        $scope.openFile = function (path, isDir, isBadDir) {
             if (isBadDir) {
                 console.log("opening bad directory is skipped: " + path);
                 return;
@@ -16,35 +16,35 @@
             console.log("trying to read " + path + ", encoded as " + encodeURIComponent(path));
             if (isDir) {
                 var timer = $timeout(function () {
-                    list.showProgress = true;
+                    catalog.showProgress = true;
                 }, 500);
-                $http.get('/api/list/' + encodeURIComponent(path)).success(function (data) {
-                    console.log("opening entry succeeded for path" + data.dir);
-                    if (list.current != null && list.current.length > 0) {
-                        $http.delete('/api/watch/' + encodeURIComponent(list.current));
+                $http.get('/api/catalog/list/' + encodeURIComponent(path)).success(function (data) {
+                    console.log("opening file succeeded for path" + data.dir);
+                    if (catalog.current != null && catalog.current.length > 0) {
+                        $http.delete('/api/catalog/watch/' + encodeURIComponent(catalog.current));
                     }
-                    list.contents = data.contents;
-                    list.parent = data.parent;
-                    list.current = data.dir;
-                    list.showError = false;
-                    list.error = "";
+                    catalog.contents = data.contents;
+                    catalog.parent = data.parent;
+                    catalog.current = data.dir;
+                    catalog.showError = false;
+                    catalog.error = "";
                     $scope.orderProp = 'name';
                     $timeout.cancel(timer);
-                    list.showProgress = false;
-                    $http.put('/api/watch/' + encodeURIComponent(list.current));
+                    catalog.showProgress = false;
+                    $http.put('/api/catalog/watch/' + encodeURIComponent(catalog.current));
                 }).error(function (data) {
-                    console.log("error occurred while opening entry:" + data);
+                    console.log("error occurred while opening file:" + data);
                     $timeout.cancel(timer);
-                    list.showProgress = false;
-                    list.showError = true;
-                    list.error = data;
+                    catalog.showProgress = false;
+                    catalog.showError = true;
+                    catalog.error = data;
                 });
             } else {
                 console.log("opening files is not implemented yet");
             }
         };
-        $scope.classForEntry = function (entry) {
-            if (entry.isHidden) {
+        $scope.classForFile = function (file) {
+            if (file.isHidden) {
                 return "list-group-item disabled"
             } else {
                 return "list-group-item"
@@ -58,23 +58,23 @@
                 return "ng-hide"
             }
         };
-        $scope.glyphIconForEntry = function (entry) {
-            if (entry.isDirectory) {
-                if (entry.isBadDirectory){
+        $scope.glyphIconForFile = function (file) {
+            if (file.isDir) {
+                if (file.isBadDir){
                     return "glyphicon glyphicon-question-sign";
                 } else {
                     return "glyphicon glyphicon-folder-close";
                 }
-            } else if (entry.isSymbolicLink) {
+            } else if (file.isSymLink) {
                 return "glyphicon glyphicon-open-file";
-            } else if (entry.isRegularFile) {
+            } else if (file.isFile) {
                 return "glyphicon glyphicon-file";
             } else {
                 return "glyphicon glyphicon-question-sign";
             }
         };
 
-        $scope.openEntry("", true, false);
+        $scope.openFile("", true, false);
 
         if ($scope.eb != null) {
             console.log("socket was opened, closing");
@@ -86,9 +86,9 @@
             // set a handler to receive a message
             $scope.eb.registerHandler('dir.watcher.notify', function (dir) {
                 console.log('received a message: ' + dir);
-                if (dir == list.current) {
+                if (dir == catalog.current) {
                     console.log("rereading " + dir);
-                    $scope.openEntry(list.current, true, false);
+                    $scope.openFile(catalog.current, true, false);
                 }
             });
         };

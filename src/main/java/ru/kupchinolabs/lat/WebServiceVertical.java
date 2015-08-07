@@ -38,10 +38,10 @@ public class WebServiceVertical extends AbstractVerticle {
 
         router.route().handler(BodyHandler.create());
 
-        router.get("/api/list/").handler(this::handleListUserHome);
-        router.get("/api/list/:path").handler(this::handleListByPath);
-        router.put("/api/watch/:path").handler(this::handleWatchPath);
-        router.delete("/api/watch/:path").handler(this::handleUnwatchPath);
+        router.get("/api/catalog/list/").handler(this::handleListUserHome);
+        router.get("/api/catalog/list/:path").handler(this::handleListByPath);
+        router.put("/api/catalog/watch/:path").handler(this::handleWatchPath);
+        router.delete("/api/catalog/watch/:path").handler(this::handleUnwatchPath);
 
         SockJSHandler sockJSHandler = SockJSHandler.create(vertx);
         BridgeOptions options = new BridgeOptions()
@@ -123,7 +123,9 @@ public class WebServiceVertical extends AbstractVerticle {
                 final AtomicReference<JsonObject> object = new AtomicReference<>(); // just to use in lambda
                 vertx.executeBlocking(future -> {
                     final List<String> list = result.result();
-                    //TODO there could be dirs with huge amount of files, like C:\Windows\winsxs, need to deal with it somehow
+                    ////////////////////
+                    // TODO there could be dirs with huge amount of files, like C:\Windows\winsxs, need to deal with it somehow
+                    ////////////////////
                     Collections.sort(list);
                     final JsonArray array = new JsonArray();
                     Path parentPath = Paths.get(path).getParent();
@@ -140,22 +142,27 @@ public class WebServiceVertical extends AbstractVerticle {
                         } catch (Exception e) {
                             log.log(Level.INFO, "Error while getting properties for {0}: {1}", new String[]{path, e.getMessage()});
                         }
-                        //TODO fix stuff like Ñ€ÐµÐ¿ÐµÑ€Ñ‚ÑƒÐ°Ñ€.doc
-                        //TODO convert times to timestamps/dates
                         final Path fileNamePath = Paths.get(path).getFileName();
                         final String name = fileNamePath != null ? fileNamePath.toString() : Paths.get(path).toString();
-                        boolean isBadDir = fileProps != null && fileProps.isDirectory() && Paths.get(path).toFile().listFiles() == null;
+                        /////////////////////
+                        // TODO think about it later
+                        // This is workaround for windows: some folders like My Documents have isDirectory=true
+                        // however return listFiles = null. Disabled for performance reasons.
+                        //
+                        // boolean isBadDir = fileProps != null && fileProps.isDirectory() && Paths.get(path).toFile().listFiles() == null;
+                        /////////////////////
+                        final boolean hidden = Paths.get(path).toFile().isHidden();
                         array.add(new JsonObject()
                                         .put("name", name)
                                         .put("path", path)
-                                        .put("isDirectory", fileProps != null ? fileProps.isDirectory() : false)
-                                        .put("isBadDirectory", isBadDir)
-                                        .put("isRegularFile", fileProps != null ? fileProps.isRegularFile() : false)
-                                        .put("isSymbolicLink", fileProps != null ? fileProps.isSymbolicLink() : false)
+                                        .put("isDir", fileProps != null ? fileProps.isDirectory() : false)
+                                        .put("isBadDir", false)
+                                        .put("isFile", fileProps != null ? fileProps.isRegularFile() : false)
+                                        .put("isSymLink", fileProps != null ? fileProps.isSymbolicLink() : false)
                                         .put("isOther", fileProps != null ? fileProps.isOther() : false)
-                                        .put("isHidden", Paths.get(path).toFile().isHidden())
-                                        .put("lastModifiedTime", fileProps != null ? fileProps.lastModifiedTime() : "unknown")
-                                        .put("sizeInBytes", fileProps != null ? fileProps.size() : "unknown")
+                                        .put("isHidden", hidden)
+                                        .put("modified", fileProps != null ? fileProps.lastModifiedTime() : "unknown")
+                                        .put("size", fileProps != null ? fileProps.size() : "unknown")
                         );
                     }
                     future.complete();
@@ -171,7 +178,7 @@ public class WebServiceVertical extends AbstractVerticle {
                     }
                 });
             } else {
-                log.log(Level.SEVERE, "handling failure reading of dir {0}:{1}", new String[] {path, result.cause().toString()});
+                log.log(Level.SEVERE, "handling failure reading of dir {0}:{1}", new String[]{path, result.cause().toString()});
                 response.putHeader("content-type", "text/plain")
                         .setStatusCode(400)
                         .end("failed to read " + path + " contents: " + result.cause());

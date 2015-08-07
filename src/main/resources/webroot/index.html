@@ -7,15 +7,15 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="css/bootstrap-theme.min.css">
 </head>
-<body ng-controller="ListController as list">
+<body ng-controller="CatalogController as catalog">
 <div>
     Search: <input ng-model="query.name" ng-init="">
 </div>
 Sort by:
 <select ng-model="orderProp">
     <option value="name">Name</option>
-    <option value="sizeInBytes">Size</option>
-    <option value="lastModifiedTime">Date</option>
+    <option value="size">Size</option>
+    <option value="modified">Date</option>
 </select>
 
 <div class="well">
@@ -23,33 +23,33 @@ Sort by:
         <div class="panel-heading" style="height: 40px">
             <div class="panel-title">
                 <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
-                {{list.current}}
+                {{catalog.current}}
             </div>
-            <div ng-show="list.showProgress" class="progress">
+            <div ng-show="catalog.showProgress" class="progress">
                 <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar"
                      aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
                 </div>
             </div>
         </div>
         <div class="panel-body">
-            <div ng-show="list.showError" class="alert alert-danger" role="alert">
+            <div ng-show="catalog.showError" class="alert alert-danger" role="alert">
                 <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
-                <strong>Error! </strong>{{list.error}}
+                <strong>Error! </strong>{{catalog.error}}
             </div>
             <div class="list-group">
                 <a role="button"
-                   ng-click="openEntry(list.parent, true)"
-                   ng-class="classForParent(list.parent)">
+                   ng-click="openFile(catalog.parent, true)"
+                   ng-class="classForParent(catalog.parent)">
                     <span class="glyphicon glyphicon-level-up" aria-hidden="true"></span>
                     ..
                 </a>
                 <a role="button"
-                   ng-click="openEntry(entry.path, entry.isDirectory, entry.isBadDirectory)"
-                   ng-class="classForEntry(entry)"
-                   ng-repeat="entry in list.contents | filter:query:strict | orderBy:orderProp">
-                    <span ng-class="glyphIconForEntry(entry)" aria-hidden="true"></span>
-                    {{entry.name}}
-                    <span class="badge">{{entry.lastModifiedTime | date: 'yyyy-MM-dd h:mma'}}</span>
+                   ng-click="openFile(file.path, file.isDir, file.isBadDir)"
+                   ng-class="classForFile(file)"
+                   ng-repeat="file in catalog.contents | filter:query:strict | orderBy:orderProp">
+                    <span ng-class="glyphIconForFile(file)" aria-hidden="true"></span>
+                    {{file.name}}
+                    <span class="badge">{{file.modified | date: 'yyyy-MM-dd h:mma'}}</span>
                 </a>
             </div>
         </div>
