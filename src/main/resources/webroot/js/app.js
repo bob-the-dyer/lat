@@ -8,7 +8,11 @@
         this.error = "";
         this.showProgress = false;
         var list = this;
-        $scope.openEntry = function (path, isDir) {
+        $scope.openEntry = function (path, isDir, isBadDir) {
+            if (isBadDir) {
+                console.log("opening bad directory is skipped: " + path);
+                return;
+            }
             console.log("trying to read " + path + ", encoded as " + encodeURIComponent(path));
             if (isDir) {
                 var timer = $timeout(function () {
@@ -40,10 +44,10 @@
             }
         };
         $scope.classForEntry = function (entry) {
-            if (entry.isDirectory) {
-                return "list-group-item"
-            } else {
+            if (entry.isHidden) {
                 return "list-group-item disabled"
+            } else {
+                return "list-group-item"
             }
         };
         $scope.classForParent = function (parent) {
@@ -56,13 +60,21 @@
         };
         $scope.glyphIconForEntry = function (entry) {
             if (entry.isDirectory) {
-                return "glyphicon glyphicon-folder-close"
+                if (entry.isBadDirectory){
+                    return "glyphicon glyphicon-question-sign";
+                } else {
+                    return "glyphicon glyphicon-folder-close";
+                }
+            } else if (entry.isSymbolicLink) {
+                return "glyphicon glyphicon-open-file";
+            } else if (entry.isRegularFile) {
+                return "glyphicon glyphicon-file";
             } else {
-                return "glyphicon glyphicon-file"
+                return "glyphicon glyphicon-question-sign";
             }
         };
 
-        $scope.openEntry("", true);
+        $scope.openEntry("", true, false);
 
         if ($scope.eb != null) {
             console.log("socket was opened, closing");
@@ -76,7 +88,7 @@
                 console.log('received a message: ' + dir);
                 if (dir == list.current) {
                     console.log("rereading " + dir);
-                    $scope.openEntry(list.current, true);
+                    $scope.openEntry(list.current, true, false);
                 }
             });
         };

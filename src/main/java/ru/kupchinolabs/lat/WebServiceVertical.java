@@ -144,12 +144,16 @@ public class WebServiceVertical extends AbstractVerticle {
                         //TODO convert times to timestamps/dates
                         final Path fileNamePath = Paths.get(path).getFileName();
                         final String name = fileNamePath != null ? fileNamePath.toString() : Paths.get(path).toString();
+                        boolean isBadDir = fileProps != null && fileProps.isDirectory() && Paths.get(path).toFile().listFiles() == null;
                         array.add(new JsonObject()
                                         .put("name", name)
                                         .put("path", path)
                                         .put("isDirectory", fileProps != null ? fileProps.isDirectory() : false)
+                                        .put("isBadDirectory", isBadDir)
                                         .put("isRegularFile", fileProps != null ? fileProps.isRegularFile() : false)
                                         .put("isSymbolicLink", fileProps != null ? fileProps.isSymbolicLink() : false)
+                                        .put("isOther", fileProps != null ? fileProps.isOther() : false)
+                                        .put("isHidden", Paths.get(path).toFile().isHidden())
                                         .put("lastModifiedTime", fileProps != null ? fileProps.lastModifiedTime() : "unknown")
                                         .put("sizeInBytes", fileProps != null ? fileProps.size() : "unknown")
                         );
@@ -167,7 +171,7 @@ public class WebServiceVertical extends AbstractVerticle {
                     }
                 });
             } else {
-                log.log(Level.SEVERE, "handling failure reading of dir {0}", path);
+                log.log(Level.SEVERE, "handling failure reading of dir {0}:{1}", new String[] {path, result.cause().toString()});
                 response.putHeader("content-type", "text/plain")
                         .setStatusCode(400)
                         .end("failed to read " + path + " contents: " + result.cause());

@@ -44,7 +44,7 @@ Sort by:
                     ..
                 </a>
                 <a role="button"
-                   ng-click="openEntry(entry.path, entry.isDirectory)"
+                   ng-click="openEntry(entry.path, entry.isDirectory, entry.isBadDirectory)"
                    ng-class="classForEntry(entry)"
                    ng-repeat="entry in list.contents | filter:query:strict | orderBy:orderProp">
                     <span ng-class="glyphIconForEntry(entry)" aria-hidden="true"></span>
