@@ -16,8 +16,9 @@ import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
-import java.io.File;
 import java.net.URLDecoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -122,35 +123,35 @@ public class WebServiceVertical extends AbstractVerticle {
                 final AtomicReference<JsonObject> object = new AtomicReference<>(); // just to use in lambda
                 vertx.executeBlocking(future -> {
                     final List<String> list = result.result();
+                    //TODO there could be dirs with huge amount of files, like C:\Windows\winsxs, need to deal with it somehow
                     Collections.sort(list);
                     final JsonArray array = new JsonArray();
-                    final String parent;
-                    if ("/".equals(path)) {
-                        parent = "";
-                    } else if (path.lastIndexOf(File.separator) == 0) {
-                        parent = "/";
-                    } else {
-                        parent = path.substring(0, path.lastIndexOf(File.separator));
-                    }
+                    Path parentPath = Paths.get(path).getParent();
+                    final String parent = parentPath != null ? parentPath.toString() : "";
                     object.set(new JsonObject()
                                     .put("dir", path)
                                     .put("parent", parent)
                                     .put("contents", array)
                     );
                     for (String path : list) {
-                        final FileProps fileProps = vertx.fileSystem().propsBlocking(path);
+                        FileProps fileProps = null;
+                        try {
+                            fileProps = vertx.fileSystem().propsBlocking(path);
+                        } catch (Exception e) {
+                            log.log(Level.INFO, "Error while getting properties for {0}: {1}", new String[]{path, e.getMessage()});
+                        }
                         //TODO fix stuff like Ñ€ÐµÐ¿ÐµÑ€Ñ‚ÑƒÐ°Ñ€.doc
                         //TODO convert times to timestamps/dates
-                        final String[] split = path.split(File.separator);
-                        final String name = "/".equals(path) ? "/" : split[split.length - 1];
+                        final Path fileNamePath = Paths.get(path).getFileName();
+                        final String name = fileNamePath != null ? fileNamePath.toString() : Paths.get(path).toString();
                         array.add(new JsonObject()
                                         .put("name", name)
                                         .put("path", path)
-                                        .put("isDirectory", fileProps.isDirectory())
-                                        .put("isRegularFile", fileProps.isRegularFile())
-                                        .put("isSymbolicLink", fileProps.isSymbolicLink())
-                                        .put("lastModifiedTime", fileProps.lastModifiedTime())
-                                        .put("sizeInBytes", fileProps.size())
+                                        .put("isDirectory", fileProps != null ? fileProps.isDirectory() : false)
+                                        .put("isRegularFile", fileProps != null ? fileProps.isRegularFile() : false)
+                                        .put("isSymbolicLink", fileProps != null ? fileProps.isSymbolicLink() : false)
+                                        .put("lastModifiedTime", fileProps != null ? fileProps.lastModifiedTime() : "unknown")
+                                        .put("sizeInBytes", fileProps != null ? fileProps.size() : "unknown")
                         );
                     }
                     future.complete();
