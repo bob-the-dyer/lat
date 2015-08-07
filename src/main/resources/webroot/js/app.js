@@ -80,7 +80,7 @@
             console.log("socket was opened, closing");
             $scope.eb.close();
         }
-        $scope.eb = new vertx.EventBus(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/eventbus');
+        $scope.eb = new vertx.EventBus('/eventbus');
         $scope.eb.onopen = function () {
             console.log("opening socket");
             // set a handler to receive a message
