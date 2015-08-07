@@ -1,4 +1,4 @@
-package ru.kupchinolabs.lat;
+package ru.spb.kupchinolabs.lat;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
@@ -21,10 +21,10 @@ public class StarterVertical extends AbstractVerticle {
     public void start() throws Exception {
         log.info("starting to deploy verticals");
         final AsyncResultHandler completionHandler = new AsyncResultHandler();
-        if (should("deploywebservice")){
-            vertx.deployVerticle(WebServiceVertical.class.getName(), completionHandler);
+        if (should("deploywebservice")) {
+            vertx.deployVerticle(CatalogServiceVertical.class.getName(), completionHandler);
         }
-        if (should("deploywatchservice")){
+        if (should("deploywatchservice")) {
             vertx.deployVerticle(WatchServiceVertical.class.getName(), completionHandler);
         }
     }

@@ -12,7 +12,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <main.verticle>ru.kupchinolabs.lat.StarterVertical</main.verticle>
+        <main.verticle>ru.spb.kupchinolabs.lat.StarterVertical</main.verticle>
         <vertx.version>3.0.0</vertx.version>
     </properties>
 

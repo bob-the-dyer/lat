@@ -1,4 +1,4 @@
-package ru.kupchinolabs.lat;
+package ru.spb.kupchinolabs.lat;
 
 public interface Constants {
     public static final String DIR_WATCH_REGISTER_ADDRESS = "dir.watcher.register";

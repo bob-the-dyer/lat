@@ -1,4 +1,4 @@
-package ru.kupchinolabs.lat;
+package ru.spb.kupchinolabs.lat;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.Message;
@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.nio.file.StandardWatchEventKinds.*;
-import static ru.kupchinolabs.lat.Constants.*;
+import static ru.spb.kupchinolabs.lat.Constants.*;
 
 public class WatchServiceVertical extends AbstractVerticle {
 

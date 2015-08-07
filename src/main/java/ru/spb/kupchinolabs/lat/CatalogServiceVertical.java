@@ -1,4 +1,4 @@
-package ru.kupchinolabs.lat;
+package ru.spb.kupchinolabs.lat;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
@@ -25,12 +25,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static ru.kupchinolabs.lat.Constants.DIR_WATCH_REGISTER_ADDRESS;
-import static ru.kupchinolabs.lat.Constants.DIR_WATCH_UNREGISTER_ADDRESS;
+public class CatalogServiceVertical extends AbstractVerticle {
 
-public class WebServiceVertical extends AbstractVerticle {
-
-    private final static Logger log = Logger.getLogger(WebServiceVertical.class.getName());
+    private final static Logger log = Logger.getLogger(CatalogServiceVertical.class.getName());
 
     @Override
     public void start() throws Exception {
@@ -74,12 +71,12 @@ public class WebServiceVertical extends AbstractVerticle {
 
     private void handleWatchPath(RoutingContext routingContext) {
         String path = routingContext.request().getParam("path");
-        vertx.eventBus().send(DIR_WATCH_REGISTER_ADDRESS, URLDecoder.decode(path), new WatcherResultHandler(routingContext));
+        vertx.eventBus().send(Constants.DIR_WATCH_REGISTER_ADDRESS, URLDecoder.decode(path), new WatcherResultHandler(routingContext));
     }
 
     private void handleUnwatchPath(RoutingContext routingContext) {
         String path = routingContext.request().getParam("path");
-        vertx.eventBus().send(DIR_WATCH_UNREGISTER_ADDRESS, URLDecoder.decode(path), new WatcherResultHandler(routingContext));
+        vertx.eventBus().send(Constants.DIR_WATCH_UNREGISTER_ADDRESS, URLDecoder.decode(path), new WatcherResultHandler(routingContext));
     }
 
     private static class WatcherResultHandler implements Handler<AsyncResult<Message<Object>>> {
