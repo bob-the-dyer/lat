@@ -6,6 +6,7 @@
         this.current = "";
         this.showError = false;
         this.error = "";
+        this.errorClass = "";
         this.showProgress = false;
         var catalog = this;
         $scope.openFile = function (path, isDir) {
@@ -24,6 +25,7 @@
                     catalog.current = data.dir;
                     catalog.showError = false;
                     catalog.error = "";
+                    catalog.errorClass = "";
                     $scope.orderProp = 'name';
                     $timeout.cancel(timer);
                     catalog.showProgress = false;
@@ -34,9 +36,13 @@
                     catalog.showProgress = false;
                     catalog.showError = true;
                     catalog.error = data;
+                    catalog.errorClass = "alert alert-danger";
                 });
             } else {
                 console.log("opening files is not implemented yet");
+                catalog.showError = true;
+                catalog.error = 'Opening files is not implemented yet...';
+                catalog.errorClass = "alert alert-warning";
             }
         };
         $scope.classForFile = function (file) {

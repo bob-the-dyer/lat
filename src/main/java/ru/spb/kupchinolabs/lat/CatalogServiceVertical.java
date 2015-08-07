@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -118,7 +117,7 @@ public class CatalogServiceVertical extends AbstractVerticle {
         public void handle(AsyncResult<List<String>> result) {
             if (result.succeeded()) {
                 log.log(Level.INFO, "handling success reading of dir {0}", path);
-                final AtomicReference<JsonObject> object = new AtomicReference<>(); // just to use in lambda
+                final JsonObject[] object = new JsonObject[1];
                 vertx.executeBlocking(future -> {
                     final List<String> list = result.result();
                     ////////////////////
@@ -128,11 +127,10 @@ public class CatalogServiceVertical extends AbstractVerticle {
                     final JsonArray array = new JsonArray();
                     Path parentPath = Paths.get(path).getParent();
                     final String parent = parentPath != null ? parentPath.toString() : "";
-                    object.set(new JsonObject()
+                    object[0] = new JsonObject()
                                     .put("dir", path)
                                     .put("parent", parent)
-                                    .put("contents", array)
-                    );
+                                    .put("contents", array);
                     for (String path : list) {
                         FileProps fileProps = null;
                         try {
@@ -160,11 +158,11 @@ public class CatalogServiceVertical extends AbstractVerticle {
                     if (res.succeeded()) {
                         response.putHeader("content-type", "application/json")
                                 .setStatusCode(200)
-                                .end(object.get().encodePrettily());
+                                .end(object[0].encodePrettily());
                     } else {
                         response.putHeader("content-type", "text/plain")
                                 .setStatusCode(400)
-                                .end("failed to prepare response for " + path + ": " + res.cause());
+                                .end("Failed to prepare response for " + path + ": " + res.cause());
                     }
                 });
             } else {
@@ -179,7 +177,7 @@ public class CatalogServiceVertical extends AbstractVerticle {
                         new String[]{path, String.valueOf(isBadDir), result.cause().toString()});
                 response.putHeader("content-type", "text/plain")
                         .setStatusCode(400)
-                        .end("failed to read '" + path + "' contents: " + (isBadDir ? " strange folder ..." : result.cause()));
+                        .end("Failed to read '" + path + "' contents: " + (isBadDir ? " strange folder ..." : result.cause()));
             }
         }
     }

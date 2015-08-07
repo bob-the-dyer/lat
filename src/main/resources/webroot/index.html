@@ -32,9 +32,9 @@ Sort by:
             </div>
         </div>
         <div class="panel-body">
-            <div ng-show="catalog.showError" class="alert alert-danger" role="alert">
+            <div ng-show="catalog.showError" class="{{catalog.errorClass}}" role="alert">
                 <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
-                <strong>Error! </strong>{{catalog.error}}
+                <strong>{{catalog.error}}</strong>
             </div>
             <div class="list-group">
                 <a role="button"
