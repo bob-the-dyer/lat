@@ -9,7 +9,7 @@
         this.errorClass = "";
         this.showProgress = false;
         var catalog = this;
-        $scope.openFile = function (path, isDir) {
+        $scope.openFile = function (path, isDir, skipRegistration) {
             console.log("trying to read " + path + ", encoded as " + encodeURIComponent(path));
             if (isDir) {
                 var timer = $timeout(function () {
@@ -17,7 +17,7 @@
                 }, 500);
                 $http.get('/api/catalog/list/' + encodeURIComponent(path)).success(function (data) {
                     console.log("opening file succeeded for path" + data.dir);
-                    if (catalog.current != null && catalog.current.length > 0) {
+                    if (!skipRegistration && catalog.current != null && catalog.current.length > 0) {
                         $http.delete('/api/catalog/watch/' + encodeURIComponent(catalog.current));
                     }
                     catalog.contents = data.contents;
@@ -29,7 +29,9 @@
                     $scope.orderProp = 'name';
                     $timeout.cancel(timer);
                     catalog.showProgress = false;
-                    $http.put('/api/catalog/watch/' + encodeURIComponent(catalog.current));
+                    if (!skipRegistration){
+                        $http.put('/api/catalog/watch/' + encodeURIComponent(catalog.current));
+                    }
                 }).error(function (data) {
                     console.log("error occurred while opening file:" + data);
                     $timeout.cancel(timer);
@@ -72,7 +74,7 @@
             }
         };
 
-        $scope.openFile("", true);
+        $scope.openFile("", true, false);
 
         if ($scope.eb != null) {
             console.log("socket was opened, closing");
@@ -86,7 +88,7 @@
                 console.log('received a message: ' + dir);
                 if (dir == catalog.current) {
                     console.log("rereading " + dir);
-                    $scope.openFile(catalog.current, true);
+                    $scope.openFile(catalog.current, true, true);
                 }
             });
         };
