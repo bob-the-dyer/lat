@@ -22,9 +22,11 @@ public class StarterVertical extends AbstractVerticle {
         log.info("starting to deploy verticals");
         final AsyncResultHandler completionHandler = new AsyncResultHandler();
         if (should("deploywebservice")) {
+            log.info("deploying webservice...");
             vertx.deployVerticle(CatalogServiceVertical.class.getName(), completionHandler);
         }
         if (should("deploywatchservice")) {
+            log.info("deploying watchservice...");
             vertx.deployVerticle(WatchServiceVertical.class.getName(), completionHandler);
         }
     }
