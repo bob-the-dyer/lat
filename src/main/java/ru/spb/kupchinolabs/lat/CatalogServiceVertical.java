@@ -117,7 +117,6 @@ public class CatalogServiceVertical extends AbstractVerticle {
         public void handle(AsyncResult<List<String>> result) {
             if (result.succeeded()) {
                 log.log(Level.INFO, "handling success reading of dir {0}", path);
-                final JsonObject[] json = new JsonObject[1];
                 vertx.executeBlocking(future -> {
                     final List<String> list = result.result();
                     ////////////////////
@@ -127,7 +126,7 @@ public class CatalogServiceVertical extends AbstractVerticle {
                     final JsonArray array = new JsonArray();
                     Path parentPath = Paths.get(path).getParent();
                     final String parent = parentPath != null ? parentPath.toString() : "";
-                    json[0] = new JsonObject()
+                    JsonObject json = new JsonObject()
                             .put("dir", path)
                             .put("parent", parent)
                             .put("contents", array);
@@ -153,12 +152,14 @@ public class CatalogServiceVertical extends AbstractVerticle {
                                         .put("size", fileProps != null ? fileProps.size() : "unknown")
                         );
                     }
+                    vertx.sharedData().getLocalMap("response").put("json", json);
                     future.complete();
                 }, res -> {
+                    final JsonObject json = vertx.sharedData().<String, JsonObject>getLocalMap("response").get("json");
                     if (res.succeeded()) {
                         response.putHeader("content-type", "application/json")
                                 .setStatusCode(200)
-                                .end(json[0].encodePrettily());
+                                .end(json.encodePrettily());
                     } else {
                         response.putHeader("content-type", "text/plain")
                                 .setStatusCode(400)
