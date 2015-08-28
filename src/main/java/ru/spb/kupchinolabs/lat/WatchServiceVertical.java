@@ -20,7 +20,8 @@ public class WatchServiceVertical extends AbstractVerticle {
 
     Map<String, WatchService> watchers = new HashMap<>();
     Map<String, Integer> watchersCounters = new HashMap<>();
-    //TODO register watchers per client
+    // TODO register watchers per client or somehow solve the problem if client shuts down
+    // browser without proper unregistering or refresh browser which leads to additional registering
 
     @Override
     public void start() throws Exception {

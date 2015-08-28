@@ -3,7 +3,7 @@ package ru.spb.kupchinolabs.lat;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.example.util.Runner;
+import io.vertx.core.Vertx;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,7 +14,9 @@ public class StarterVertical extends AbstractVerticle {
 
     // Convenience method so you can run it in your IDE
     public static void main(String[] args) {
-        Runner.runExample(StarterVertical.class);
+        System.setProperty("vertx.cwd", "target/classes");
+        System.setProperty("vertx.disableFileCaching", "true") ;
+        Vertx.vertx().deployVerticle(new StarterVertical());
     }
 
     @Override
